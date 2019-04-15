@@ -1,5 +1,6 @@
 /*
  * ------------------------------------------------------------------------
+ *
  *  Copyright by KNIME AG, Zurich, Switzerland
  *  Website: http://www.knime.com; Email: contact@knime.com
  *
@@ -40,48 +41,40 @@
  *  propagated with or for interoperation with KNIME.  The owner of a Node
  *  may freely choose the license terms applicable to such Node, including
  *  when such Node is propagated with or for interoperation with KNIME.
- * ------------------------------------------------------------------------
+ * ---------------------------------------------------------------------
+ *
  */
-package org.knime.core.data;
+package org.knime.core.data.container.filter.predicate;
+
+import org.knime.core.data.DataRow;
 
 /**
- * Most general data interface in table structure with a fixed number of columns
- * and iterable rows (no random access).
+ * While not technically a column in KNIME, row keys allow filtering by {@link FilterPredicate}. This class can be used
+ * to specify {@link FilterPredicate FilterPredicates} over row keys.
  *
- * <p>
- * Each <code>DataTable</code> is a read-only container of {@link DataRow}
- * elements which are returned by the {@link RowIterator}. Each row must have
- * the same number of {@link DataCell} elements (columns), is read-only, and
- * must provide a unique row identifier. A table also contains a
- * {@link DataTableSpec} member which provides information about the structure
- * of the table. The {@link DataTableSpec} consists of {@link DataColumnSpec}s
- * which contain information about the column, e.g. name, type, and possible
- * values etc.
- *
- * @author Thomas Gabriel, University of Konstanz
- *
- * @see DataCell
- * @see DataRow
- * @see RowIterator
+ * @author Marc Bux, KNIME GmbH, Berlin, Germany
+ * @since 3.8
  */
-public interface DataTable extends Iterable<DataRow> {
+// Note that {@link RowKeyColumn} does not implement {@link OrderColumn} even though {@link String} implements
+// {@link Comparable}. The reason for this is that defining {@link OrderPredicate OrderPredicates} over row keys is
+// prone to error, since, e.g., Row1 is lexicographically smaller than both Row2 and Row0. Also,
+// {@link CustomPredicate CustomPredicates} do not work in Parquet with row keys, since Parquet splits row keys into a
+// String and a long component and a custom predicate could not be split across the two columns.
+public final class RowKeyColumn implements Column<String> {
 
-    /**
-     * Returns the {@link DataTableSpec} object of this table which gives
-     * information about the structure of this data table.
-     *
-     * @return the DataTableSpec of this table
-     */
-    DataTableSpec getDataTableSpec();
-
-    /**
-     * Returns a row iterator which returns each row one-by-one from the table.
-     *
-     * @return row iterator
-     *
-     * @see org.knime.core.data.DataRow
-     */
     @Override
-    RowIterator iterator();
+    public String getValue(final DataRow row) {
+        return row.getKey().getString();
+    }
+
+    @Override
+    public <R> R accept(final Visitor<R> v) {
+        return v.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return "row key";
+    }
 
 }

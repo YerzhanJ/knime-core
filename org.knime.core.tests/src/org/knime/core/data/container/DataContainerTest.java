@@ -835,7 +835,7 @@ public class DataContainerTest extends TestCase {
         Assert.assertTrue("Medium-sized table dropped from memory but not written to disk.", buffer.isFlushedToDisk());
 
         // finally, we iterate over the table and make sure that it has been read back into memory
-        try (final CloseableRowIterator it = buffer.iteratorBuilder().build();) {
+        try (final CloseableRowIterator it = buffer.iterator();) {
             while (it.hasNext()) {
                 it.next();
             }

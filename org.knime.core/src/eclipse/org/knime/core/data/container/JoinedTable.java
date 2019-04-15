@@ -50,10 +50,13 @@ package org.knime.core.data.container;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowIterator;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.container.filter.FilterDelegateRowIterator;
+import org.knime.core.data.container.filter.TableFilter;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTable.KnowsRowCountTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -124,6 +127,36 @@ public final class JoinedTable implements KnowsRowCountTable {
     public CloseableRowIterator iterator() {
         return new JoinTableIterator(m_leftTable.iterator(),
                 m_rightTable.iterator(), m_map, m_flags);
+    }
+
+    @Override
+    public CloseableRowIterator iteratorWithFilter(final TableFilter filter, final ExecutionMonitor exec) {
+        if (filter.getFilterPredicate().isPresent()) {
+            // We can't split a predicate across two tables so we can't push the predicate down and have to fallback.
+            return new FilterDelegateRowIterator(iterator(), filter, exec);
+        }
+
+        // apply row index filter to left and right tables
+        final DataTableSpec leftSpec = m_leftTable.getSpec();
+        final DataTableSpec rightSpec = m_rightTable.getSpec();
+        final TableFilter.Builder leftFilterBuilder = new TableFilter.Builder(filter);
+        final TableFilter.Builder rightFilterBuilder = new TableFilter.Builder(filter);
+
+        // split column indec filters across left and right tables
+        final Optional<Set<Integer>> optionalIndices = filter.getMaterializeColumnIndices();
+        if (optionalIndices.isPresent()) {
+            final Set<Integer> indices = optionalIndices.get();
+            final int offset = leftSpec.getNumColumns();
+            final int[] leftIndices = indices.stream().filter(i -> i < offset).mapToInt(i -> i).toArray();
+            final int[] rightIndices = indices.stream().filter(i -> i >= offset).mapToInt(i -> i - offset).toArray();
+            leftFilterBuilder.withMaterializeColumnIndices(leftSpec, leftIndices);
+            rightFilterBuilder.withMaterializeColumnIndices(rightSpec, rightIndices);
+        }
+
+        return new JoinTableIterator(//
+            m_leftTable.filter(leftFilterBuilder.build(), exec).iterator(), //
+            m_rightTable.filter(rightFilterBuilder.build()).iterator(), //
+            m_map, m_flags);
     }
 
     /**
@@ -248,25 +281,22 @@ public final class JoinedTable implements KnowsRowCountTable {
         DataTableSpec joinSpec = new DataTableSpec(
                 left.getDataTableSpec(), right.getDataTableSpec());
         // check if rows come in same order
-        RowIterator leftIt = left.iterator();
-        RowIterator rightIt = right.iterator();
-        int rowIndex = 0;
-        while (leftIt.hasNext()) {
-            RowKey leftKey = leftIt.next().getKey();
-            RowKey rightKey = rightIt.next().getKey();
-            if (!leftKey.equals(rightKey)) {
-                throw new IllegalArgumentException(
-                        "Tables contain non-matching rows or are sorted "
-                        + "differently, keys in row " + rowIndex
-                        + " do not match: \"" + leftKey
-                        + "\" vs. \"" + rightKey + "\"");
+        try (CloseableRowIterator leftIt = left.iterator(); CloseableRowIterator rightIt = right.iterator()) {
+            int rowIndex = 0;
+            while (leftIt.hasNext()) {
+                RowKey leftKey = leftIt.next().getKey();
+                RowKey rightKey = rightIt.next().getKey();
+                if (!leftKey.equals(rightKey)) {
+                    throw new IllegalArgumentException(
+                        "Tables contain non-matching rows or are sorted differently, keys in row " + rowIndex
+                            + " do not match: \"" + leftKey + "\" vs. \"" + rightKey + "\"");
+                }
+                prog.checkCanceled();
+                prog.setProgress(rowIndex / (double)cnt, "\"" + leftKey + "\" (" + rowIndex + "/" + cnt + ")");
+                rowIndex++;
             }
-            prog.checkCanceled();
-            prog.setProgress(rowIndex / (double)cnt, "\"" + leftKey
-                    + "\" (" + rowIndex + "/" + cnt + ")");
-            rowIndex++;
+            return new JoinedTable(left, right, joinSpec);
         }
-        return new JoinedTable(left, right, joinSpec);
     }
 
 

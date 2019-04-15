@@ -14,6 +14,20 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.knime.core.data.RowIteratorBuilder">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.knime.core.data.RowIteratorBuilder"/>
+                <message_argument value="org.knime.core_3.7.0"/>
+            </message_arguments>
+        </filter>
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.knime.core.data.RowIteratorBuilder"/>
+                <message_argument value="org.knime.core_3.8.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.knime.core.node.NodeAndBundleInformation">
         <filter id="305324134">
             <message_arguments>
@@ -100,6 +114,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/eclipse/org/knime/core/data/DataTable.java" type="org.knime.core.data.DataTable">
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.knime.core.data.DataTable"/>
+                <message_argument value="iteratorBuilder()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/eclipse/org/knime/core/data/blob/BinaryObjectCellFactory.java" type="org.knime.core.data.blob.BinaryObjectCellFactory">
         <filter id="338792546">
             <message_arguments>
@@ -117,22 +139,10 @@
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/ConcatenateTable.java" type="org.knime.core.data.container.ConcatenateTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.ConcatenateTable"/>
-                <message_argument value="load(NodeSettingsRO, DataTableSpec, Map&lt;Integer,BufferedDataTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.ConcatenateTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.ConcatenateTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="ConcatenateTable"/>
             </message_arguments>
         </filter>
     </resource>
@@ -140,13 +150,13 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.data.container.ContainerTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="iteratorBuilder()"/>
             </message_arguments>
         </filter>
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.ContainerTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="ContainerTable"/>
             </message_arguments>
         </filter>
     </resource>
@@ -195,101 +205,42 @@
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/JoinedTable.java" type="org.knime.core.data.container.JoinedTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.JoinedTable"/>
-                <message_argument value="load(NodeSettingsRO, DataTableSpec, Map&lt;Integer,BufferedDataTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.JoinedTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.JoinedTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="JoinedTable"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/RearrangeColumnsTable.java" type="org.knime.core.data.container.RearrangeColumnsTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.RearrangeColumnsTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.RearrangeColumnsTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="1143996420">
-            <message_arguments>
-                <message_argument value="RearrangeColumnsTable(ReferencedFile, NodeSettingsRO, Map&lt;Integer,BufferedDataTable&gt;, DataTableSpec, int, WorkflowDataRepository)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="RearrangeColumnsTable"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/TableSpecReplacerTable.java" type="org.knime.core.data.container.TableSpecReplacerTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.TableSpecReplacerTable"/>
-                <message_argument value="load(NodeSettingsRO, DataTableSpec, Map&lt;Integer,BufferedDataTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.TableSpecReplacerTable"/>
-                <message_argument value="load11x(File, NodeSettingsRO, Map&lt;Integer,BufferedDataTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.TableSpecReplacerTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.TableSpecReplacerTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="TableSpecReplacerTable"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/VoidTable.java" type="org.knime.core.data.container.VoidTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.VoidTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.VoidTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="VoidTable"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="src/eclipse/org/knime/core/data/container/WrappedTable.java" type="org.knime.core.data.container.WrappedTable">
-        <filter id="338792546">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.data.container.WrappedTable"/>
-                <message_argument value="load(NodeSettingsRO, Map&lt;Integer,BufferedDataTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.WrappedTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
-            </message_arguments>
-        </filter>
-        <filter id="338792546">
-            <message_arguments>
-                <message_argument value="org.knime.core.data.container.WrappedTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="WrappedTable"/>
             </message_arguments>
         </filter>
     </resource>
@@ -297,13 +248,13 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.data.container.storage.AbstractTableStoreReader"/>
-                <message_argument value="getFileStoreHandlerRepository()"/>
+                <message_argument value="clearIteratorInstances()"/>
             </message_arguments>
         </filter>
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.data.container.storage.AbstractTableStoreReader"/>
-                <message_argument value="setBufferAndFileStoreHandlerRepository(Buffer, FileStoreHandlerRepository)"/>
+                <message_argument value="iteratorBuilder()"/>
             </message_arguments>
         </filter>
     </resource>
@@ -311,7 +262,7 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.data.container.storage.AbstractTableStoreReader.TableStoreCloseableRowIterator"/>
-                <message_argument value="setBuffer(Buffer)"/>
+                <message_argument value="setReader(AbstractTableStoreReader)"/>
             </message_arguments>
         </filter>
     </resource>
@@ -409,7 +360,7 @@
         <filter id="338792546">
             <message_arguments>
                 <message_argument value="org.knime.core.node.BufferedDataTable"/>
-                <message_argument value="getDataTable(Map&lt;Integer,BufferedDataTable&gt;, Integer)"/>
+                <message_argument value="iteratorBuilder()"/>
             </message_arguments>
         </filter>
     </resource>
@@ -417,13 +368,15 @@
         <filter id="405901410">
             <message_arguments>
                 <message_argument value="org.knime.core.node.BufferedDataTable.KnowsRowCountTable"/>
-                <message_argument value="putIntoTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="iteratorBuilder()"/>
             </message_arguments>
         </filter>
-        <filter id="405901410">
+    </resource>
+    <resource path="src/eclipse/org/knime/core/node/ExtensionTable.java" type="org.knime.core.node.ExtensionTable">
+        <filter id="576725006">
             <message_arguments>
-                <message_argument value="org.knime.core.node.BufferedDataTable.KnowsRowCountTable"/>
-                <message_argument value="removeFromTableRepository(HashMap&lt;Integer,ContainerTable&gt;)"/>
+                <message_argument value="KnowsRowCountTable"/>
+                <message_argument value="ExtensionTable"/>
             </message_arguments>
         </filter>
     </resource>
