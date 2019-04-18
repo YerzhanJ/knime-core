@@ -74,7 +74,7 @@ import org.knime.core.data.def.StringCell;
 
 /**
  * Helper class that can be used to validate {@link FilterPredicate FilterPredicates} against a given
- * {@link DataTableSpec}. Note that it is not sufficient for {@link Column Columns} in the predicate to be compatible
+ * {@link DataTableSpec}. Note that it is not sufficient for {@link TypedColumn Columns} in the predicate to be compatible
  * (in the sense of {@link DataType#isCompatible(Class)}) to the type specified in the {@link DataTableSpec} for that
  * column. The types have to be actually equal. The reason for this is that {@link FilterPredicate FilterPredicates} are
  * intended to be pushed down to the underlying table stores and applied to stored values before {@link DataCell
@@ -85,7 +85,7 @@ import org.knime.core.data.def.StringCell;
  */
 public final class FilterPredicateValidator implements Visitor<Void> {
 
-    private final DataTableSpec m_spec;
+    private final ColumnValidator m_columnValidator;
 
     /**
      * Constructs a new validator visitor for validating {@link FilterPredicate FilterPredicates} against a
@@ -94,54 +94,54 @@ public final class FilterPredicateValidator implements Visitor<Void> {
      * @param spec the table spec to validate against
      */
     public FilterPredicateValidator(final DataTableSpec spec) {
-        m_spec = spec;
+        m_columnValidator = new ColumnValidator(spec);
     }
 
     @Override
     public <T> Void visit(final MissingValuePredicate<T> mvp) {
-        mvp.getColumn().accept(new ColumnValidator(m_spec));
+        mvp.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T> Void visit(final CustomPredicate<T> udf) {
-        udf.getColumn().accept(new ColumnValidator(m_spec));
+        udf.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T> Void visit(final EqualTo<T> eq) {
-        eq.getColumn().accept(new ColumnValidator(m_spec));
+        eq.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T> Void visit(final NotEqualTo<T> neq) {
-        neq.getColumn().accept(new ColumnValidator(m_spec));
+        neq.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T extends Comparable<T>> Void visit(final LesserThan<T> lt) {
-        lt.getColumn().accept(new ColumnValidator(m_spec));
+        lt.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T extends Comparable<T>> Void visit(final LesserThanOrEqualTo<T> leq) {
-        leq.getColumn().accept(new ColumnValidator(m_spec));
+        leq.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T extends Comparable<T>> Void visit(final GreaterThan<T> gt) {
-        gt.getColumn().accept(new ColumnValidator(m_spec));
+        gt.getColumn().accept(m_columnValidator);
         return null;
     }
 
     @Override
     public <T extends Comparable<T>> Void visit(final GreaterThanOrEqualTo<T> geq) {
-        geq.getColumn().accept(new ColumnValidator(m_spec));
+        geq.getColumn().accept(m_columnValidator);
         return null;
     }
 
@@ -166,11 +166,11 @@ public final class FilterPredicateValidator implements Visitor<Void> {
     }
 
     /**
-     * Helper class used by a {@link FilterPredicateValidator} to validate {@link Column Columns} against a given
+     * Helper class used by a {@link FilterPredicateValidator} to validate {@link TypedColumn Columns} against a given
      * {@link DataTableSpec}.
      */
     private static final class ColumnValidator
-        implements org.knime.core.data.container.filter.predicate.Column.Visitor<Void> {
+        implements org.knime.core.data.container.filter.predicate.TypedColumn.Visitor<Void> {
 
         private final DataTableSpec m_spec;
 

@@ -47,7 +47,7 @@
 package org.knime.core.data.container;
 
 import static org.junit.Assert.assertEquals;
-import static org.knime.core.data.container.filter.predicate.Column.intCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.intCol;
 import static org.knime.core.data.container.filter.predicate.FilterPredicate.custom;
 
 import java.util.HashMap;
@@ -124,12 +124,12 @@ public class KnowsRowCountTableIteratorWithFilterTest {
     private static TableFilter createFilter(final DataTableSpec spec, final int columnsFrom, final int columnsTo,
         final long rowsFrom, final long rowsTo, final boolean withPredicate) {
         TableFilter.Builder builder = ((new TableFilter.Builder())//
-            .withMaterializeColumnIndices(spec, IntStream.range(columnsFrom, columnsTo + 1).toArray())//
+            .withMaterializeColumnIndices(IntStream.range(columnsFrom, columnsTo + 1).toArray())//
             .withFromRowIndex(rowsFrom)//
             .withToRowIndex(rowsTo));
 
         if (withPredicate) {
-            builder.withFilterPredicate(spec, custom(intCol(0), i -> i % 2 == 0));
+            builder.withFilterPredicate(custom(intCol(0), i -> i % 2 == 0));
         }
 
         return builder.build();

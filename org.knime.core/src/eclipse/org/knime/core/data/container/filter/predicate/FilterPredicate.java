@@ -72,16 +72,10 @@ import org.knime.core.data.container.filter.predicate.IndexedColumn.OrderColumn;
  *
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
  * @since 3.8
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface FilterPredicate {
-
-    /**
-     * The method that determines whether a given {@link DataRow} should be retained or dropped.
-     *
-     * @param row the row which this predicate shall be applied to
-     * @return true, iff the row should be retained
-     */
-    boolean keep(DataRow row);
 
     /**
      * A {@link FilterPredicate} must accept a {@link Visitor}, as required by the Visitor design pattern. Non-abstract
@@ -90,6 +84,7 @@ public interface FilterPredicate {
      *
      * @param v the visitor that intends to visit this predicate
      * @return a return value of some type specified by the visitor implementation
+     * @noreference This method is not intended to be referenced by clients.
      */
     <R> R accept(Visitor<R> v);
 
@@ -141,32 +136,34 @@ public interface FilterPredicate {
      * @param column the column which this predicate shall be applied to
      * @param predicate the custom predicate to translate into a filter predicate
      * @return a new {@link CustomPredicate}
+     * 
+     * TODO: think about a custom column. what would it look like? Our API should support it long-term
      */
     static <T, C extends IndexedColumn<T>> FilterPredicate custom(final C column, final Predicate<T> predicate) {
         return new CustomPredicate<T>(column, predicate);
     }
 
     /**
-     * Static factory method for creating a new {@link EqualTo}, i.e., a {@link ValuePredicate} on a {@link Column} that
+     * Static factory method for creating a new {@link EqualTo}, i.e., a {@link ValuePredicate} on a {@link TypedColumn} that
      * retains only {@link DataRow DataRows} with a value equal to a given value in that column.
      *
      * @param column the column which this predicate shall be applied to
      * @param value the value that another value must be equal to for this predicate to evaluate to true
      * @return a new {@link EqualTo} predicate
      */
-    static <T, C extends Column<T>> FilterPredicate equal(final C column, final T value) {
+    static <T, C extends TypedColumn<T>> FilterPredicate equal(final C column, final T value) {
         return new EqualTo<T>(column, value);
     }
 
     /**
-     * Static factory method for creating a new {@link NotEqualTo}, i.e., a {@link ValuePredicate} on a {@link Column}
+     * Static factory method for creating a new {@link NotEqualTo}, i.e., a {@link ValuePredicate} on a {@link TypedColumn}
      * that retains only {@link DataRow DataRows} with a value not equal to a given value in that column.
      *
      * @param column the column which this predicate shall be applied to
      * @param value the value that another value must not be equal to for this predicate to evaluate to true
      * @return a new {@link NotEqualTo} predicate
      */
-    static <T, C extends Column<T>> FilterPredicate notEqual(final C column, final T value) {
+    static <T, C extends TypedColumn<T>> FilterPredicate notEqual(final C column, final T value) {
         return new NotEqualTo<T>(column, value);
     }
 
@@ -229,6 +226,7 @@ public interface FilterPredicate {
      * new operations on {@link FilterPredicate FilterPredicates} without modifying the existing object structure.
      *
      * @param <R> the return type of the visitor
+     * TODO: noreference etc.
      */
     public interface Visitor<R> {
 

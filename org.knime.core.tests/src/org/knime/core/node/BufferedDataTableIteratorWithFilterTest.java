@@ -49,9 +49,9 @@ package org.knime.core.node;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.knime.core.data.container.filter.predicate.Column.boolCol;
-import static org.knime.core.data.container.filter.predicate.Column.intCol;
-import static org.knime.core.data.container.filter.predicate.Column.longCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.boolCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.intCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.longCol;
 import static org.knime.core.data.container.filter.predicate.FilterPredicate.custom;
 import static org.knime.core.data.container.filter.predicate.FilterPredicate.equal;
 import static org.knime.core.data.container.filter.predicate.FilterPredicate.greaterOrEqual;
@@ -98,7 +98,7 @@ public class BufferedDataTableIteratorWithFilterTest {
             new DataColumnSpecCreator("boolean", BooleanCell.TYPE).createSpec());
 
     // keep only rows with an index that is even and between 10 and 20 (i.e. 10, 12, 14, 16, 18, 20)
-    private static final TableFilter FILTER_MOST = ((new TableFilter.Builder()).withFilterPredicate(SPEC,
+    private static final TableFilter FILTER_MOST = ((new TableFilter.Builder()).withFilterPredicate(
         greaterOrEqual(intCol(0), 10).and(lesserOrEqual(longCol(2), 20l)).and(equal(boolCol(4), false))))
             .withFromRowIndex(13).withToRowIndex(17).build();
 
@@ -168,7 +168,7 @@ public class BufferedDataTableIteratorWithFilterTest {
     public void testFilterAll() {
         BufferedDataTable table = createTable(100, true);
 
-        TableFilter filter = TableFilter.filterRows(SPEC, custom(intCol(0), i -> false));
+        TableFilter filter = TableFilter.filterRows(custom(intCol(0), i -> false));
 
         try (final CloseableRowIterator rowIt = table.filter(filter).iterator()) {
             assertFalse(rowIt.hasNext());
@@ -184,7 +184,7 @@ public class BufferedDataTableIteratorWithFilterTest {
     public void testFilterNone() {
         BufferedDataTable table = createTable(100, true);
 
-        TableFilter filter = TableFilter.filterRows(SPEC, custom(intCol(0), i -> true));
+        TableFilter filter = TableFilter.filterRows(custom(intCol(0), i -> true));
 
         try (final CloseableRowIterator rowIt1 = table.filter(filter).iterator();
                 CloseableRowIterator rowIt2 = table.iterator()) {

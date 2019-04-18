@@ -46,7 +46,6 @@
  */
 package org.knime.core.data.container.filter.predicate;
 
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.BooleanColumn;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.DoubleColumn;
@@ -60,27 +59,20 @@ import org.knime.core.data.def.LongCell;
 import org.knime.core.data.def.StringCell;
 
 /**
- * A class for specifying a column on which a {@link ColumnPredicate ColumnPredicates} shall be applied. The class
- * {@link Column} implements the Visitor design pattern, i.e., the functionality of the class can be extended by
- * implementing the {@link Visitor} interface.
+ * A class for specifying a column on which a {@link ColumnPredicate} shall be applied. The class {@link TypedColumn}
+ * implements the Visitor design pattern, i.e., the functionality of the class can be extended by implementing the
+ * {@link Visitor} interface.
  *
  * @param <T> the type of values which this column holds
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
  * @since 3.8
  */
-public interface Column<T> {
+public interface TypedColumn<T> {
 
     /**
-     * A method for obtaining the value of this {@link Column} on a given {@link DataRow}.
-     *
-     * @param row the row from which to obtain the value
-     * @return the column's value in the row
-     */
-    T getValue(DataRow row);
-
-    /**
-     * A {@link Column} must accept a {@link Visitor}, as required by the Visitor design pattern. Non-abstract classes
-     * implementing this interface should invoke the visitor's visit method on themselves when overriding this method.
+     * A {@link TypedColumn} must accept a {@link Visitor}, as required by the Visitor design pattern. Non-abstract
+     * classes implementing this interface should invoke the visitor's visit method on themselves when overriding this
+     * method.
      *
      * @param v the visitor that intends to visit this column
      * @return a return value of some type specified by the visitor implementation
@@ -152,8 +144,8 @@ public interface Column<T> {
     }
 
     /**
-     * Implementation of the visitor design pattern for the {@link Column} class. Enables the introduction of
-     * new operations on {@link Column Columns} without modifying the existing object structure.
+     * Implementation of the visitor design pattern for the {@link TypedColumn} class. Enables the introduction of new
+     * operations on {@link TypedColumn Columns} without modifying the existing object structure.
      *
      * @param <R> the return type of the visitor
      */

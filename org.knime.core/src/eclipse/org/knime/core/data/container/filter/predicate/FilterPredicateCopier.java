@@ -43,12 +43,13 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * History
+ *   18 Apr 2019 (Marc Bux, KNIME GmbH, Berlin, Germany): created
  */
 package org.knime.core.data.container.filter.predicate;
 
 import java.util.function.Function;
 
-import org.knime.core.data.container.RearrangeColumnsTable;
 import org.knime.core.data.container.filter.predicate.BinaryLogicalPredicate.And;
 import org.knime.core.data.container.filter.predicate.BinaryLogicalPredicate.Or;
 import org.knime.core.data.container.filter.predicate.ColumnPredicate.CustomPredicate;
@@ -67,74 +68,58 @@ import org.knime.core.data.container.filter.predicate.IndexedColumn.LongColumn;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.StringColumn;
 
 /**
- * Helper class that maps the indices of all {@link ColumnPredicate ColumnPredicates} held by a {@link FilterPredicate}
- * to new values. This is helpful if columns are rearranged and the indices held by the predicate have to be rearranged
- * as well, as for instance in the case of {@link RearrangeColumnsTable RearrangeColumnsTables}.
  *
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
  * @since 3.8
  */
-public final class FilterPredicateIndexMapper implements Visitor<FilterPredicate> {
-
-    private final int[] m_map;
-
-    /**
-     * Constructs a new index mapper visitor. Initialized with an array that maps the old index values onto their new
-     * positions. For instance, an index map of [0, 2, 1] entails that the column at the current index 1 is mapped onto
-     * the new index 2 and vice versa.
-     *
-     * @param map an array that maps the old indices onto their new positions
-     */
-    public FilterPredicateIndexMapper(final int[] map) {
-        m_map = map;
-    }
+public class FilterPredicateCopier implements Visitor<FilterPredicate> {
 
     @Override
     public <T> FilterPredicate visit(final MissingValuePredicate<T> mvp) {
         final Function<TypedColumn<T>, FilterPredicate> function = MissingValuePredicate::new;
-        return mvp.getColumn().accept(new ColumnCopier(function, m_map));
+        return mvp.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T> FilterPredicate visit(final CustomPredicate<T> udf) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new CustomPredicate<T>(c, udf.getPredicate());
-        return udf.getColumn().accept(new ColumnCopier(function, m_map));
+        return udf.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T> FilterPredicate visit(final EqualTo<T> eq) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new EqualTo<T>(c, eq.getValue());
-        return eq.getColumn().accept(new ColumnCopier(function, m_map));
+        return eq.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T> FilterPredicate visit(final NotEqualTo<T> neq) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new NotEqualTo<T>(c, neq.getValue());
-        return neq.getColumn().accept(new ColumnCopier(function, m_map));
+        return neq.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T extends Comparable<T>> FilterPredicate visit(final LesserThan<T> lt) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new LesserThan<T>(c, lt.getValue());
-        return lt.getColumn().accept(new ColumnCopier(function, m_map));
+        return lt.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T extends Comparable<T>> FilterPredicate visit(final LesserThanOrEqualTo<T> leq) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new LesserThanOrEqualTo<T>(c, leq.getValue());
-        return leq.getColumn().accept(new ColumnCopier(function, m_map));
+        return leq.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T extends Comparable<T>> FilterPredicate visit(final GreaterThan<T> gt) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new GreaterThan<T>(c, gt.getValue());
-        return gt.getColumn().accept(new ColumnCopier(function, m_map));
+        return gt.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
     public <T extends Comparable<T>> FilterPredicate visit(final GreaterThanOrEqualTo<T> geq) {
         final Function<TypedColumn<T>, FilterPredicate> function = c -> new GreaterThanOrEqualTo<T>(c, geq.getValue());
-        return geq.getColumn().accept(new ColumnCopier(function, m_map));
+        return geq.getColumn().accept(new ColumnCopier(function));
     }
 
     @Override
@@ -156,11 +141,8 @@ public final class FilterPredicateIndexMapper implements Visitor<FilterPredicate
 
         private final Function<?, FilterPredicate> m_function;
 
-        private final int[] m_map;
-
-        ColumnCopier(final Function<?, FilterPredicate> function, final int[] map) {
+        ColumnCopier(final Function<?, FilterPredicate> function) {
             m_function = function;
-            m_map = map;
         }
 
         @Override
@@ -174,35 +156,35 @@ public final class FilterPredicateIndexMapper implements Visitor<FilterPredicate
         public FilterPredicate visit(final IntColumn intCol) {
             @SuppressWarnings("unchecked")
             final Function<IntColumn, FilterPredicate> func = (Function<IntColumn, FilterPredicate>)m_function;
-            return func.apply(new IntColumn(m_map[intCol.getIndex()]));
+            return func.apply(new IntColumn(intCol.getIndex()));
         }
 
         @Override
         public FilterPredicate visit(final LongColumn longCol) {
             @SuppressWarnings("unchecked")
             final Function<LongColumn, FilterPredicate> func = (Function<LongColumn, FilterPredicate>)m_function;
-            return func.apply(new LongColumn(m_map[longCol.getIndex()]));
+            return func.apply(new LongColumn(longCol.getIndex()));
         }
 
         @Override
         public FilterPredicate visit(final DoubleColumn doubleCol) {
             @SuppressWarnings("unchecked")
             final Function<DoubleColumn, FilterPredicate> func = (Function<DoubleColumn, FilterPredicate>)m_function;
-            return func.apply(new DoubleColumn(m_map[doubleCol.getIndex()]));
+            return func.apply(new DoubleColumn(doubleCol.getIndex()));
         }
 
         @Override
         public FilterPredicate visit(final BooleanColumn boolCol) {
             @SuppressWarnings("unchecked")
             final Function<BooleanColumn, FilterPredicate> func = (Function<BooleanColumn, FilterPredicate>)m_function;
-            return func.apply(new BooleanColumn(m_map[boolCol.getIndex()]));
+            return func.apply(new BooleanColumn(boolCol.getIndex()));
         }
 
         @Override
         public FilterPredicate visit(final StringColumn stringCol) {
             @SuppressWarnings("unchecked")
             final Function<StringColumn, FilterPredicate> func = (Function<StringColumn, FilterPredicate>)m_function;
-            return func.apply(new StringColumn(m_map[stringCol.getIndex()]));
+            return func.apply(new StringColumn(stringCol.getIndex()));
         }
 
     }

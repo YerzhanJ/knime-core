@@ -47,16 +47,17 @@
 package org.knime.core.data.container.filter.predicate;
 
 import static org.junit.Assert.assertEquals;
-import static org.knime.core.data.container.filter.predicate.Column.boolCol;
-import static org.knime.core.data.container.filter.predicate.Column.doubleCol;
-import static org.knime.core.data.container.filter.predicate.Column.intCol;
-import static org.knime.core.data.container.filter.predicate.Column.longCol;
-import static org.knime.core.data.container.filter.predicate.Column.rowKey;
-import static org.knime.core.data.container.filter.predicate.Column.stringCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.boolCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.doubleCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.intCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.longCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.rowKey;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.stringCol;
 
 import org.junit.Test;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.container.filter.predicate.FilterPredicateToDataRowApplier.TypedColumnToDataRowApplier;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.BooleanColumn;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.DoubleColumn;
 import org.knime.core.data.container.filter.predicate.IndexedColumn.IntColumn;
@@ -70,21 +71,22 @@ import org.knime.core.data.def.LongCell;
 import org.knime.core.data.def.StringCell;
 
 /**
- * Unit tests for the {@link Column} class.
+ * Unit tests for the {@link TypedColumn} class and the TypedColumnToDataRowApplier.
  *
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
  */
-public class ColumnTest {
+public class TypedColumnToDataRowApplierTest {
 
-    private static final DataRow ROW = new DefaultRow(new RowKey("1"), new IntCell(0), new LongCell(1l),
-        new DoubleCell(2d), new StringCell("3"), BooleanCell.TRUE);
+    private static final DataRow ROW = new DefaultRow(new RowKey("1"), new IntCell(0),
+        new LongCell(1l), new DoubleCell(2d), new StringCell("3"), BooleanCell.TRUE);
 
     /**
      * Tests the {@link RowKeyColumn}.
      */
     @Test
     public void testRowKey() {
-        assertEquals("1", rowKey().getValue(ROW));
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals("1"));
+        assertEquals(rowKey().accept(columnVisitor), Boolean.TRUE);
     }
 
     /**
@@ -92,7 +94,8 @@ public class ColumnTest {
      */
     @Test
     public void testIntCol() {
-        assertEquals(0, intCol(0).getValue(ROW).intValue());
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals(0));
+        assertEquals(intCol(0).accept(columnVisitor), Boolean.TRUE);
     }
 
     /**
@@ -100,7 +103,8 @@ public class ColumnTest {
      */
     @Test
     public void testLongCol() {
-        assertEquals(1l, longCol(1).getValue(ROW).longValue());
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals(1l));
+        assertEquals(longCol(1).accept(columnVisitor), Boolean.TRUE);
     }
 
     /**
@@ -108,7 +112,8 @@ public class ColumnTest {
      */
     @Test
     public void testDoubleCol() {
-        assertEquals(2d, doubleCol(2).getValue(ROW).doubleValue(), 0d);
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals(2d));
+        assertEquals(doubleCol(2).accept(columnVisitor), Boolean.TRUE);
     }
 
     /**
@@ -116,7 +121,8 @@ public class ColumnTest {
      */
     @Test
     public void testStringCol() {
-        assertEquals("3", stringCol(3).getValue(ROW));
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals("3"));
+        assertEquals(stringCol(3).accept(columnVisitor), Boolean.TRUE);
     }
 
     /**
@@ -124,7 +130,8 @@ public class ColumnTest {
      */
     @Test
     public void testBoolCol() {
-        assertEquals(true, boolCol(4).getValue(ROW).booleanValue());
+        TypedColumnToDataRowApplier columnVisitor = new TypedColumnToDataRowApplier(ROW, t -> t.equals(Boolean.TRUE));
+        assertEquals(boolCol(4).accept(columnVisitor), Boolean.TRUE);
     }
 
 }

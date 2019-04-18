@@ -149,8 +149,8 @@ public final class JoinedTable implements KnowsRowCountTable {
             final int offset = leftSpec.getNumColumns();
             final int[] leftIndices = indices.stream().filter(i -> i < offset).mapToInt(i -> i).toArray();
             final int[] rightIndices = indices.stream().filter(i -> i >= offset).mapToInt(i -> i - offset).toArray();
-            leftFilterBuilder.withMaterializeColumnIndices(leftSpec, leftIndices);
-            rightFilterBuilder.withMaterializeColumnIndices(rightSpec, rightIndices);
+            leftFilterBuilder.withMaterializeColumnIndices(leftIndices);
+            rightFilterBuilder.withMaterializeColumnIndices(rightIndices);
         }
 
         return new JoinTableIterator(//

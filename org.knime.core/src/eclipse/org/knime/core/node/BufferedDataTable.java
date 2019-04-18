@@ -361,8 +361,10 @@ public final class BufferedDataTable implements DataTable, PortObject {
 
     /**
      * Provides a {@link CloseableDataRowIterable} that is filtered according to a given {@link TableFilter} and can be
-     * iterated over. During iteration, a given {@link ExecutionMonitor} will update its progress. The filtering won't
-     * change this BufferedDataTable or impact subsequent calls of this method with other filters.
+     * iterated over. During iteration, a given {@link ExecutionMonitor} will update its progress. Note that the
+     * progress updates will not be accurate if you iterate over the returned iterable multiple times. It is therefore
+     * suggested to use the returned iterable only once. The filtering won't change this BufferedDataTable or impact
+     * subsequent calls of this method with other filters.
      *
      * @param filter the filter to be applied
      * @param exec the execution monitor that shall be updated with progress or null if no progress updates are desired
@@ -371,6 +373,7 @@ public final class BufferedDataTable implements DataTable, PortObject {
      */
     public CloseableDataRowIterable filter(final TableFilter filter, final ExecutionMonitor exec) {
         CheckUtils.checkArgumentNotNull(filter);
+        filter.validate(getSpec());
         return new CloseableDataRowIterable() {
             @Override
             public CloseableRowIterator iterator() {

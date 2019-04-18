@@ -46,8 +46,6 @@
  */
 package org.knime.core.data.container.filter.predicate;
 
-import org.knime.core.data.DataRow;
-
 /**
  * The {@link FilterPredicate FilterPredicates} expressing logical negation.
  *
@@ -60,11 +58,6 @@ public final class Not implements FilterPredicate {
 
     Not(final FilterPredicate predicate) {
         m_predicate = predicate;
-    }
-
-    @Override
-    public boolean keep(final DataRow row) {
-        return !m_predicate.keep(row);
     }
 
     @Override

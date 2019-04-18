@@ -46,8 +46,6 @@
  */
 package org.knime.core.data.container.filter.predicate;
 
-import org.knime.core.data.DataRow;
-
 /**
  * Abstract class for {@link FilterPredicate FilterPredicates} expressing binary logical operations.
  *
@@ -95,11 +93,6 @@ public abstract class BinaryLogicalPredicate implements FilterPredicate {
         }
 
         @Override
-        public boolean keep(final DataRow row) {
-            return getLeft().keep(row) && getRight().keep(row);
-        }
-
-        @Override
         public <R> R accept(final Visitor<R> v) {
             return v.visit(this);
         }
@@ -118,11 +111,6 @@ public abstract class BinaryLogicalPredicate implements FilterPredicate {
 
         Or(final FilterPredicate left, final FilterPredicate right) {
             super(left, right);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            return getLeft().keep(row) || getRight().keep(row);
         }
 
         @Override

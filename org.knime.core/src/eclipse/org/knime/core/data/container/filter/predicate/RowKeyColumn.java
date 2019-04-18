@@ -46,8 +46,6 @@
  */
 package org.knime.core.data.container.filter.predicate;
 
-import org.knime.core.data.DataRow;
-
 /**
  * While not technically a column in KNIME, row keys allow filtering by {@link FilterPredicate}. This class can be used
  * to specify {@link FilterPredicate FilterPredicates} over row keys.
@@ -60,12 +58,7 @@ import org.knime.core.data.DataRow;
 // prone to error, since, e.g., Row1 is lexicographically smaller than both Row2 and Row0. Also,
 // {@link CustomPredicate CustomPredicates} do not work in Parquet with row keys, since Parquet splits row keys into a
 // String and a long component and a custom predicate could not be split across the two columns.
-public final class RowKeyColumn implements Column<String> {
-
-    @Override
-    public String getValue(final DataRow row) {
-        return row.getKey().getString();
-    }
+public final class RowKeyColumn implements TypedColumn<String> {
 
     @Override
     public <R> R accept(final Visitor<R> v) {

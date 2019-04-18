@@ -52,6 +52,7 @@ import java.util.Optional;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.container.CloseableRowIterator;
 import org.knime.core.data.container.filter.predicate.FilterPredicate;
+import org.knime.core.data.container.filter.predicate.FilterPredicateToDataRowApplier;
 import org.knime.core.data.container.storage.AbstractTableStoreReader;
 import org.knime.core.node.BufferedDataTable.KnowsRowCountTable;
 import org.knime.core.node.ExecutionMonitor;
@@ -82,11 +83,11 @@ public final class FilterDelegateRowIterator extends CloseableRowIterator {
     private DataRow m_nextRow;
 
     // initialization flag to allow for lazy initialization
-    private boolean initialized;
+    private boolean m_initialized;
 
     /**
      * Constructs a new filter delegate row iterator.
-     * 
+     *
      * @param iterator the iterator to delegate to and filter from
      * @param filter the table filter that specifies the filtering to be performed on the delegate iterator
      * @param exec the execution monitor that shall be updated with progress or null if no progress updates are desired
@@ -103,12 +104,12 @@ public final class FilterDelegateRowIterator extends CloseableRowIterator {
 
     private void init() {
         m_nextRow = internalNext();
-        initialized = true;
+        m_initialized = true;
     }
 
     @Override
     public boolean hasNext() {
-        if (!initialized) {
+        if (!m_initialized) {
             init();
         }
         return m_nextRow != null;
@@ -116,7 +117,7 @@ public final class FilterDelegateRowIterator extends CloseableRowIterator {
 
     @Override
     public DataRow next() {
-        if (!initialized) {
+        if (!m_initialized) {
             init();
         }
         if (m_nextRow == null) {
@@ -128,7 +129,7 @@ public final class FilterDelegateRowIterator extends CloseableRowIterator {
     }
 
     private DataRow internalNext() {
-    	// get next row while there is a next row and while we're still at or below the maximum index of rows to keep
+        // get next row while there is a next row and while we're still at or below the maximum index of rows to keep
         while (m_delegate.hasNext() && m_index <= m_toIndex) {
             final DataRow row = m_delegate.next();
 
@@ -142,7 +143,8 @@ public final class FilterDelegateRowIterator extends CloseableRowIterator {
 
             // return the row if the predicate evaluates to true and we're at or above the minimum index of rows to keep
             // also, increase the index by one
-            if (m_index++ >= m_fromIndex && (!m_predicate.isPresent() || m_predicate.get().keep(row))) {
+            if (m_index++ >= m_fromIndex
+                && (!m_predicate.isPresent() || m_predicate.get().accept(new FilterPredicateToDataRowApplier(row)))) {
                 return row;
             }
         }

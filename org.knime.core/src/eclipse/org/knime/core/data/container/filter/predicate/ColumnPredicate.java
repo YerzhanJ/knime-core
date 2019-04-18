@@ -52,7 +52,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.MissingValue;
 
 /**
- * Abstract class for {@link FilterPredicate FilterPredicates} expressing logical operations on {@link Column Columns}.
+ * Abstract class for {@link FilterPredicate FilterPredicates} expressing logical operations on {@link TypedColumn Columns}.
  *
  * @param <T> the type of the column on which this predicate shall be applied
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
@@ -60,35 +60,30 @@ import org.knime.core.data.MissingValue;
  */
 public abstract class ColumnPredicate<T> implements FilterPredicate {
 
-    private final Column<T> m_column;
+    private final TypedColumn<T> m_column;
 
-    ColumnPredicate(final Column<T> column) {
+    ColumnPredicate(final TypedColumn<T> column) {
         m_column = column;
     }
 
     /**
-     * A method for obtaining the {@link Column} this {@link ColumnPredicate} is defined on.
+     * A method for obtaining the {@link TypedColumn} this {@link ColumnPredicate} is defined on.
      *
      * @return the column of this predicate
      */
-    public Column<T> getColumn() {
+    public TypedColumn<T> getColumn() {
         return m_column;
     }
 
     /**
-     * A {@link ColumnPredicate} that checks if the value in a given {@link Column Column} is a {@link MissingValue}.
+     * A {@link ColumnPredicate} that checks if the value in a given {@link TypedColumn Column} is a {@link MissingValue}.
      *
      * @param <T> the type of the column on which this predicate shall be applied
      */
     public static final class MissingValuePredicate<T> extends ColumnPredicate<T> {
 
-        MissingValuePredicate(final Column<T> column) {
+        MissingValuePredicate(final TypedColumn<T> column) {
             super(column);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            return getColumn().getValue(row) == null;
         }
 
         @Override
@@ -104,7 +99,7 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     /**
-     * A {@link ColumnPredicate} that checks if the value in a given {@link Column Column} evaluates to true in that
+     * A {@link ColumnPredicate} that checks if the value in a given {@link TypedColumn Column} evaluates to true in that
      * column for a given {@link Predicate}.
      *
      * @param <T> the type of the column on which this predicate shall be applied
@@ -113,18 +108,9 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
 
         private final Predicate<T> m_predicate;
 
-        CustomPredicate(final Column<T> column, final Predicate<T> predicate) {
+        CustomPredicate(final TypedColumn<T> column, final Predicate<T> predicate) {
             super(column);
             m_predicate = predicate;
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return m_predicate.test(value);
         }
 
         @Override
@@ -150,7 +136,7 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
 
     /**
      * Abstract class for {@link ColumnPredicate ColumnPredicates} expressing logical operations that compare the value
-     * in a given {@link Column Column} against some value.
+     * in a given {@link TypedColumn Column} against some value.
      *
      * @param <T> the type of the column on which this predicate shall be applied
      */
@@ -158,7 +144,7 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
 
         private final T m_value;
 
-        private ValuePredicate(final Column<T> column, final T value) {
+        private ValuePredicate(final TypedColumn<T> column, final T value) {
             super(column);
             m_value = value;
         }
@@ -174,29 +160,20 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     static abstract class EquivalencePredicate<T> extends ValuePredicate<T> {
-        EquivalencePredicate(final Column<T> column, final T value) {
+        EquivalencePredicate(final TypedColumn<T> column, final T value) {
             super(column, value);
         }
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is equal to some value.
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is equal to some value.
      *
      * @param <T> the type of the column on which this predicate shall be applied
      */
     public static final class EqualTo<T> extends EquivalencePredicate<T> {
 
-        EqualTo(final Column<T> column, final T value) {
+        EqualTo(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return value.equals(getValue());
         }
 
         @Override
@@ -212,23 +189,14 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is not equal to some value.
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is not equal to some value.
      *
      * @param <T> the type of the column on which this predicate shall be applied
      */
     public static final class NotEqualTo<T> extends EquivalencePredicate<T> {
 
-        NotEqualTo(final Column<T> column, final T value) {
+        NotEqualTo(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return true;
-            }
-            return !value.equals(getValue());
         }
 
         @Override
@@ -244,29 +212,20 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     static abstract class OrderPredicate<T extends Comparable<T>> extends ValuePredicate<T> {
-        OrderPredicate(final Column<T> column, final T value) {
+        OrderPredicate(final TypedColumn<T> column, final T value) {
             super(column, value);
         }
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is lesser than some value.
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is lesser than some value.
      *
      * @param <T> the comparable type of the column on which this predicate shall be applied
      */
     public static final class LesserThan<T extends Comparable<T>> extends OrderPredicate<T> {
 
-        LesserThan(final Column<T> column, final T value) {
+        LesserThan(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return value.compareTo(getValue()) < 0;
         }
 
         @Override
@@ -282,24 +241,15 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is lesser than or equal to
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is lesser than or equal to
      * some value.
      *
      * @param <T> the comparable type of the column on which this predicate shall be applied
      */
     public static final class LesserThanOrEqualTo<T extends Comparable<T>> extends OrderPredicate<T> {
 
-        LesserThanOrEqualTo(final Column<T> column, final T value) {
+        LesserThanOrEqualTo(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return value.compareTo(getValue()) <= 0;
         }
 
         @Override
@@ -315,23 +265,14 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is greater than some value.
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is greater than some value.
      *
      * @param <T> the comparable type of the column on which this predicate shall be applied
      */
     public static final class GreaterThan<T extends Comparable<T>> extends OrderPredicate<T> {
 
-        GreaterThan(final Column<T> column, final T value) {
+        GreaterThan(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return value.compareTo(getValue()) > 0;
         }
 
         @Override
@@ -347,24 +288,15 @@ public abstract class ColumnPredicate<T> implements FilterPredicate {
     }
 
     /**
-     * A {@link ValuePredicate} that checks if the value in a given {@link Column Column} is greater than or equal to
+     * A {@link ValuePredicate} that checks if the value in a given {@link TypedColumn Column} is greater than or equal to
      * some value.
      *
      * @param <T> the comparable type of the column on which this predicate shall be applied
      */
     public static final class GreaterThanOrEqualTo<T extends Comparable<T>> extends OrderPredicate<T> {
 
-        GreaterThanOrEqualTo(final Column<T> column, final T value) {
+        GreaterThanOrEqualTo(final TypedColumn<T> column, final T value) {
             super(column, value);
-        }
-
-        @Override
-        public boolean keep(final DataRow row) {
-            T value = getColumn().getValue(row);
-            if (value == null) {
-                return false;
-            }
-            return value.compareTo(getValue()) >= 0;
         }
 
         @Override

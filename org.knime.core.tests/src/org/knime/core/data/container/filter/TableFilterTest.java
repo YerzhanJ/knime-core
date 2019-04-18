@@ -48,8 +48,8 @@
  */
 package org.knime.core.data.container.filter;
 
-import static org.knime.core.data.container.filter.predicate.Column.boolCol;
-import static org.knime.core.data.container.filter.predicate.Column.intCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.boolCol;
+import static org.knime.core.data.container.filter.predicate.TypedColumn.intCol;
 import static org.knime.core.data.container.filter.predicate.FilterPredicate.equal;
 
 import org.junit.Test;
@@ -83,7 +83,7 @@ public class TableFilterTest {
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testMaterializeColumnsIndexOutOfBoundsLow() {
-        TableFilter.materializeCols(SPEC, 2, -1);
+        TableFilter.materializeCols(2, -1).validate(SPEC);
     }
 
     /**
@@ -92,7 +92,7 @@ public class TableFilterTest {
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testMaterializeColumnsIndexOutOfBoundsHigh() {
-        TableFilter.materializeCols(SPEC, 2, 5);
+        TableFilter.materializeCols(2, 5).validate(SPEC);
     }
 
     /**
@@ -101,7 +101,7 @@ public class TableFilterTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testMaterializeColumnsDuplicateIndex() {
-        TableFilter.materializeCols(SPEC, 2, 2);
+        TableFilter.materializeCols(2, 2).validate(SPEC);
     }
 
     /**
@@ -110,7 +110,7 @@ public class TableFilterTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testMaterializeColumnsNonExistingColumnName() {
-        TableFilter.materializeCols(SPEC, "long", "intt");
+        TableFilter.materializeCols(SPEC, "long", "intt").validate(SPEC);
     }
 
     /**
@@ -118,7 +118,7 @@ public class TableFilterTest {
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testFilterRowsFromIndexOutOfBounds() {
-        TableFilter.filterRowsFromIndex(-13);
+        TableFilter.filterRowsFromIndex(-13).validate(SPEC);
     }
 
     /**
@@ -126,7 +126,7 @@ public class TableFilterTest {
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testFilterRowsToIndexOutOfBounds() {
-        TableFilter.filterRowsToIndex(-5);
+        TableFilter.filterRowsToIndex(-5).validate(SPEC);
     }
 
     /**
@@ -134,7 +134,7 @@ public class TableFilterTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidRangeOfRows() {
-        TableFilter.filterRangeOfRows(5, 3);
+        TableFilter.filterRangeOfRows(5, 3).validate(SPEC);
     }
 
     /**
@@ -143,7 +143,7 @@ public class TableFilterTest {
      */
     @Test(expected = IndexOutOfBoundsException.class)
     public void testPredicateIndexOutOfBounds() {
-        TableFilter.filterRows(SPEC, equal(intCol(-1), 0));
+        TableFilter.filterRows(equal(intCol(-1), 0)).validate(SPEC);
     }
 
     /**
@@ -152,7 +152,7 @@ public class TableFilterTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testIncompatiblePredicate() {
-        TableFilter.filterRows(SPEC, equal(boolCol(0), false));
+        TableFilter.filterRows(equal(boolCol(0), false)).validate(SPEC);
     }
 
 }

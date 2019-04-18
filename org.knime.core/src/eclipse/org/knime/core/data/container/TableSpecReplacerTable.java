@@ -210,6 +210,7 @@ public final class TableSpecReplacerTable implements KnowsRowCountTable {
 
     @Override
     public CloseableRowIterator iteratorWithFilter(final TableFilter filter, final ExecutionMonitor exec) {
+        // TODO: what happens if the BDT has an intColumn and the ReplacerTable has a longColumn
         return m_reference.filter(filter, exec).iterator();
     }
 

@@ -48,7 +48,6 @@ package org.knime.core.data.container.filter.predicate;
 
 import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
@@ -61,26 +60,21 @@ import org.knime.core.data.def.LongCell;
 import org.knime.core.data.def.StringCell;
 
 /**
- * Abstract class for {@link Column Columns} that can be accessed by their index.
+ * Abstract class for {@link TypedColumn Columns} that can be accessed by their index.
  *
  * @param <T> the type of values which this column holds
  * @author Marc Bux, KNIME GmbH, Berlin, Germany
  * @since 3.8
  */
-public abstract class IndexedColumn<T> implements Column<T> {
-    private int m_index;
+public abstract class IndexedColumn<T> implements TypedColumn<T> {
+    private final int m_index;
 
     IndexedColumn(final int index) {
         m_index = index;
     }
 
-    @Override
-    public final T getValue(final DataRow row) {
-        DataCell cell = row.getCell(m_index);
-        if (cell.isMissing()) {
-            return null;
-        }
-        return getValueInternal(cell);
+    T getValue(final DataCell cell) {
+        return cell.isMissing() ? null : getValueInternal(cell);
     }
 
     abstract T getValueInternal(DataCell cell);
@@ -92,10 +86,6 @@ public abstract class IndexedColumn<T> implements Column<T> {
      */
     public int getIndex() {
         return m_index;
-    }
-
-    void setIndex(final int index) {
-        m_index = index;
     }
 
     /**
@@ -132,7 +122,7 @@ public abstract class IndexedColumn<T> implements Column<T> {
      *
      * @param <T> the comparable type of values which this column holds
      */
-    public interface OrderColumn<T extends Comparable<T>> extends Column<T> {
+    public interface OrderColumn<T extends Comparable<T>> extends TypedColumn<T> {
     }
 
     /**

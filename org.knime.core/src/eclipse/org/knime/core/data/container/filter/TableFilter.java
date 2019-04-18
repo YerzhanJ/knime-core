@@ -117,8 +117,33 @@ public final class TableFilter {
     }
 
     /**
-     * A method that can be used to obtain a {@link FilterPredicate} associated with this filter. Rows should only be
-     * kept when {@link FilterPredicate#keep(DataRow)} evaluates to true. The returned {@link Optional} will be empty if
+     * Validates this {@link TableFilter} against a {@link DataTableSpec}.
+     *
+     * @param spec the spec to validate against
+     * @throws IndexOutOfBoundsException when any index is out of bounds
+     * @throws IllegalArgumentException when any argument is invalid
+     */
+    public void validate(final DataTableSpec spec) {
+        if (m_columnIndices.isPresent()) {
+            spec.verifyIndices(m_columnIndices.get().stream().mapToInt(i -> i).toArray());
+        }
+
+        if (m_fromRowIndex < 0) {
+            throw new IndexOutOfBoundsException("Row index must be at least 0.");
+        }
+        if (m_toRowIndex < 0) {
+            throw new IndexOutOfBoundsException("Row index must be at least 0.");
+        }
+        CheckUtils.checkArgument(m_fromRowIndex <= m_toRowIndex,
+            "Row index to filter from cannot be higher than row index to filter to.");
+
+        if (m_rowFilterPredicate.isPresent()) {
+            m_rowFilterPredicate.get().accept(new FilterPredicateValidator(spec));
+        }
+    }
+
+    /**
+     * A method that can be used to obtain a {@link FilterPredicate} associated with this filter. The returned {@link Optional} will be empty if
      * no predicate is to be applied.
      *
      * @return an optional predicate that is to be applied when filtering data rows
@@ -132,12 +157,11 @@ public final class TableFilter {
      * {@link DataCell DataCells} accessed in unmaterialized columns might lead to an
      * {@link UnmaterializedDataCellException} being thrown.
      *
-     * @param spec the data table spec of the table to filter
      * @param indices the indices of columns to materialize
      * @return a new table filter
      */
-    public static TableFilter materializeCols(final DataTableSpec spec, final int... indices) {
-        return (new Builder()).withMaterializeColumnIndices(spec, indices).build();
+    public static TableFilter materializeCols(final int... indices) {
+        return (new Builder()).withMaterializeColumnIndices(indices).build();
     }
 
     /**
@@ -150,7 +174,7 @@ public final class TableFilter {
      * @return a new table filter
      */
     public static TableFilter materializeCols(final DataTableSpec spec, final String... columnNames) {
-        return (new Builder()).withMaterializeColumnIndices(spec, spec.columnsToIndices(columnNames)).build();
+        return (new Builder()).withMaterializeColumnIndices(spec.columnsToIndices(columnNames)).build();
     }
 
     /**
@@ -189,14 +213,13 @@ public final class TableFilter {
 
     /**
      * Static factory method for creating a {@link TableFilter} that retains only rows according to a given
-     * {@link FilterPredicate}. Rows are only kept when {@link FilterPredicate#keep(DataRow)} evaluates to true.
+     * {@link FilterPredicate}.
      *
-     * @param spec the data table spec of the table to filter
      * @param predicate the predicate that specifies which rows to keep
      * @return a new table filter
      */
-    public static TableFilter filterRows(final DataTableSpec spec, final FilterPredicate predicate) {
-        return (new Builder()).withFilterPredicate(spec, predicate).build();
+    public static TableFilter filterRows(final FilterPredicate predicate) {
+        return (new Builder()).withFilterPredicate(predicate).build();
     }
 
     /**
@@ -239,13 +262,11 @@ public final class TableFilter {
          * certain index. {@link DataCell DataCells} accessed in unmaterialized columns might lead to an
          * {@link UnmaterializedDataCellException} being thrown.
          *
-         * @param spec the data table spec of the table to filter
          * @param indices the indices of columns to materialize
          * @return the same builder with updated parameters
          */
-        public Builder withMaterializeColumnIndices(final DataTableSpec spec, final int... indices) {
+        public Builder withMaterializeColumnIndices(final int... indices) {
             CheckUtils.checkArgumentNotNull(indices);
-            spec.verifyIndices(indices);
             final Set<Integer> indicesSet = new HashSet<>();
             for (int index : indices) {
                 if (!indicesSet.add(index)) {
@@ -264,11 +285,6 @@ public final class TableFilter {
          * @return the same builder with updated parameters
          */
         public Builder withFromRowIndex(final long index) {
-            if (index < 0) {
-                throw new IndexOutOfBoundsException("Row index must be at least 0.");
-            }
-            CheckUtils.checkArgument(index <= m_toRowIndex,
-                "Row index to filter from cannot be higher than row index to filter to.");
             m_fromRowIndex = index;
             return this;
         }
@@ -281,11 +297,6 @@ public final class TableFilter {
          * @return the same builder with updated parameters
          */
         public Builder withToRowIndex(final long index) {
-            if (index < 0) {
-                throw new IndexOutOfBoundsException("Row index must be at least 0.");
-            }
-            CheckUtils.checkArgument(index >= m_fromRowIndex,
-                "Row index to filter to cannot be lower than row index to filter from.");
             m_toRowIndex = index;
             return this;
         }
@@ -294,13 +305,11 @@ public final class TableFilter {
          * Configure the builder to provide {@link TableFilter TableFilters} that retain only rows according to a given
          * {@link FilterPredicate}. Rows are only kept when {@link FilterPredicate#keep(DataRow)} evaluates to true.
          *
-         * @param spec the data table spec of the table to filter
          * @param predicate the predicate that specifies which rows to keep
          * @return the same builder with updated parameters
          */
-        public Builder withFilterPredicate(final DataTableSpec spec, final FilterPredicate predicate) {
+        public Builder withFilterPredicate(final FilterPredicate predicate) {
             CheckUtils.checkArgumentNotNull(predicate, "Predicate must not be null.");
-            predicate.accept(new FilterPredicateValidator(spec));
             m_rowFilterPredicate = Optional.of(predicate);
             return this;
         }
